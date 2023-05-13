@@ -132,4 +132,6 @@ dmypy.json
 .ipynb_checkpoints/
 新文件*.txt
 *.o
-
+*.swp
+*.img
+a.out
