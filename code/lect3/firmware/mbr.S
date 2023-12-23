@@ -22,7 +22,7 @@ done:                //                |
 
 // Data: const char msg[] = "...";
 msg:
-  .asciz "hello! !!\r\n"
+  .asciz "hello world!!\r\n"
 
 // Magic number for bootable device
 .org SECT_SIZE - 2
