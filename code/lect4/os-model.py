@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 
+"""
+
+ ./os-model.py  threads.py
+"""
+
 import sys
 import random
 from pathlib import Path
