@@ -50,13 +50,16 @@ class OperatingSystem():
                 random.shuffle(threads)  # sys_sched()
 
 if __name__ == '__main__':
+    
+    print(f'sys.argv: {sys.argv}')
     if len(sys.argv) < 2:
         print(f'Usage: {sys.argv[0]} file')
         exit(1)
 
     src = Path(sys.argv[1]).read_text()
+    print(f'src: {src} \n -------------------------')
     for syscall in OperatingSystem.SYSCALLS:
         src = src.replace(f'sys_{syscall}',        # sys_write(...)
                           f'yield "{syscall}", ')  #  -> yield 'write', (...)
-
+    print(f'yield src: {src} \n -----------------------')
     OperatingSystem(src).run()
