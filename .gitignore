@@ -140,3 +140,5 @@ dmypy.json
 *.swo
 *.img
 a.out
+*.tmp
+
