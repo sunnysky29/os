@@ -1,3 +1,10 @@
+/*
+多线程， 分形
+gcc  05_mandelbrot.c   -lpthread   -lm -O2
+./a.out  32
+
+*/
+
 #include "thread.h"
 #include <math.h>
 
