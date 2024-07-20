@@ -142,3 +142,5 @@ dmypy.json
 a.out
 *.tmp
 mandelbrot.ppm
+
+~$*.docx
