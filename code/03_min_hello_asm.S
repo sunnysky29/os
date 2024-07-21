@@ -1,7 +1,9 @@
 /* 
+
 最小的 hello  world ！！
 gcc 03_min_hello_asm.S  -c && ld 03_min_hello_asm.o
-df@moss:~/g15/codes/os/code$ ./a.out
+
+$ ./a.out
 Hello, OS World
 
 $  gcc -E 03_min_hello_asm.S  ## 处理预编译结果
@@ -23,6 +25,7 @@ $  gcc -E 03_min_hello_asm.S  ## 处理预编译结果
   ed:
 
 */
+// ------------------------------------------
 
 #include <sys/syscall.h>
 
