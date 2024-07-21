@@ -5,12 +5,9 @@
 在后台运行，可以看到 CPU 使用率超过了 100%
 
 gcc 04_multi-thread_demo_ab.c    -lpthread  && ./a.out      
+-lpthread  不加也能顺利编译运行，有点奇怪？？？????
 
-bbbbbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbbbbbbbbbbbbabaabbababbbabaaabababababababa
-abababababababababababababababababababababababababababaababababababab
-abababababababababababababababababababababababababababababababaaabababaaaabababbbabaaaababaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+bbbbbbbbbbbbbbbbbbbbbbbbabaa
 
 */
 
