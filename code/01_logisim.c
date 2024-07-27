@@ -25,7 +25,9 @@ A = 1; B = 1; C = 1; D = 1; E = 1; F = 1; G = 0;
 
 */
 
- 
+#include <stdio.h>
+#include <stdbool.h>
+#include <unistd.h>
 
 #define REGS_FOREACH(_)  _(X) _(Y)
 #define OUTS_FOREACH(_)  _(A) _(B) _(C) _(D) _(E) _(F) _(G)

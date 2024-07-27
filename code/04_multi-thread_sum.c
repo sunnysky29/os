@@ -1,6 +1,7 @@
 /*
 多线程程序
 编译的不同优化 对并发的结果也有影响
+https://www.bilibili.com/video/BV1N741177F5?p=4&vd_source=abeb4ad4122e4eff23d97059cf088ab4
 
 gcc 04_xx.c    -lpthread  && ./a.out    
 
@@ -18,6 +19,7 @@ sum = 100000000
     1225:       48 89 0d ec 2d 00 00    mov    %rcx,0x2dec(%rip)        # 4018 <sum>
     122c:       c3                      ret
 
+-----------------------------------------------------------
 
 $ gcc -O2 04_multi-thread_sum.c && ./a.out
 sum = 200000000
@@ -28,6 +30,7 @@ sum = 200000000
     12ab:       00 e1 f5 05
     12af:       c3   
 
+-----------------------------------------------------------
 $ gcc -O0 04_multi-thread_sum.c && ./a.out
 sum = 100267466  (n < x < 2n)
 

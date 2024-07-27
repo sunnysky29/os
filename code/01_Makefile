@@ -1,0 +1,13 @@
+
+## 实现7段数码管
+#  make -f 01_Makefile   run
+
+
+a.out: 01_logisim.c
+	gcc $(CFLAGS) 01_logisim.c
+
+run: a.out
+	./a.out | python3 01_seven-seg.py  # The UNIX Philosophy
+
+clean:
+	rm -f a.out
