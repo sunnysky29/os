@@ -1,0 +1,294 @@
+<html>
+  <Head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+    
+<link rel="stylesheet" href="../static/css/bootstrap.min.css"/>
+<link rel="stylesheet" href="../static/css/bootstrap-theme.min.css"/>
+
+
+    <link rel="stylesheet" href="../static/css/fonts/crmison.css"/>
+    <link rel="stylesheet" href="../static/css/fonts/fira_code.css"/>
+    <link rel="stylesheet" href="../static/css/fonts/ptsans.css"/>
+    <link rel="stylesheet" href="../static/css/katex.min.css"/>
+    <link rel="stylesheet" href="../static/css/wiki.css"/>
+    <link rel="stylesheet" href="../static/css/codehilite.css"/>
+
+    <script src="../static/js/jquery.min.js"></script>
+    <script src="../static/js/bootstrap.bundle.min.js"></script>
+    <script src="../static/js/katex.min.js"></script>
+    
+    
+
+    <title>Lab2：程序的机器表示</title>
+  </Head>
+  <body>
+   
+   
+<nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark">
+  <a class="navbar-barnd" href="index.html">Yanyan's Wiki</a>
+  <div class="collapse navbar-collapse">
+    <div class="navbar-nav">
+      <a class="nav-item nav-link active" href="OS2020.html">
+        <img class="textimg" src="../static/wiki/logo-n.png"/>
+        操作系统 (2020)</a>
+      <a class="nav-item nav-link active" href="SysLab2020.html">
+        计算机系统综合实验 (2020)</a>
+      <a class="nav-item nav-link active" href="ICS_NJU.html"><img class="textimg" height="18px" src="../static/img/ics.png"/> 加入我们</a>
+    </div>
+    <form class="form-inline" autocomplete="off">
+      <input id="token-input" type="text" oninput="login();" maxlength="16"
+        data-toggle="tooltip" data-placement="bottom"
+        title="用于确定身份的作业提交 SHA-1 hash digest。更改后回车或刷新网页生效"></input>
+    </form>
+  </div>
+</nav>
+
+<center>
+  <div class="article-container">
+    <div class="article">
+      <h1 id="lab2">Lab2：程序的机器表示</h1>
+<div class="fenced fenced-blue">
+<h4 id="_1">小实验说明</h4>
+<p>小实验 (Labs) 是 ICS 这门课程里的一些综合编程题，旨在结合课堂知识解决一些实际中的问题。因为问题来自实际，所以有时候未必能立即在课本上找到相关知识的答案，而是需要“活学活用”。因此，大家需要利用互联网上的知识解决这些问题，但<strong>不要</strong>试图直接搜索这些问题的答案，即便有也不要点进去 (也请自觉不要公开发布答案)。</p>
+</div>
+<div class="fenced fenced-red">
+<h4 id="_2">实验说明</h4>
+<p>请先阅读<a href="ICS2019_Code.html">《计算机系统基础》Labs 须知</a>。</p>
+<p>获取代码：在 <code>ics-workbench</code> 中执行</p>
+<div class="codehilite"><pre><span></span>git pull origin lab2
+</pre></div>
+
+
+<p>提交方法：在 <code>asm</code> 目录下设置好 <code>STUID</code>, <code>STUNAME</code> 环境变量后，执行 <code>make submit</code> 提交。如果有一些心得体会，可以提交实验报告简单标明；也可以不提交实验报告。</p>
+</div>
+<h2 id="_3">收到的提交</h2>
+<table class="submissions"><tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr></table>
+
+<h2 id="_4">实验描述</h2>
+<div class="fenced fenced-blue">
+<h4 id="_5">背景</h4>
+<p>C 语言作为一种 “高级的低级语言”，其中一个很大的特性就是能无缝地和汇编语言交互，即在程序中嵌入 (inline) 汇编。嵌入的汇编代码甚至可以参与到编译器优化中 (嵌入的指令不能被改变，但嵌入的汇编可能被移动、删除等)。在这个实验中，我们体验如何直接在 C 语言里合理地与编译器交互，直接操纵机器。</p>
+</div>
+<p>本实验借助 x86-64 内联汇编实现以下函数 (框架已在 <code>asm-impl.c</code>) 中：</p>
+<div class="codehilite"><pre><span></span><span class="c1">// 返回有符号 64 位整数 a + b 的数值</span>
+<span class="kt">int64_t</span> <span class="nf">asm_add</span><span class="p">(</span><span class="kt">int64_t</span> <span class="n">a</span><span class="p">,</span> <span class="kt">int64_t</span> <span class="n">b</span><span class="p">);</span>
+
+<span class="c1">// 返回无符号 64 位整数 x 二进制表示中 1 的数量</span>
+<span class="kt">int</span> <span class="nf">asm_popcnt</span><span class="p">(</span><span class="kt">uint64_t</span> <span class="n">x</span><span class="p">);</span>
+
+<span class="c1">// C 标准库中的 memcpy，用于复制两段不相交的内存</span>
+<span class="kt">void</span> <span class="o">*</span><span class="nf">asm_memcpy</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">dest</span><span class="p">,</span> <span class="k">const</span> <span class="kt">void</span> <span class="o">*</span><span class="n">src</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">n</span><span class="p">);</span>
+
+<span class="c1">// C 标准库中的 setjmp/longjmp，用于控制流长跳转</span>
+<span class="kt">int</span> <span class="nf">asm_setjmp</span><span class="p">(</span><span class="n">asm_jmp_buf</span> <span class="n">env</span><span class="p">);</span>
+<span class="kt">void</span> <span class="nf">asm_longjmp</span><span class="p">(</span><span class="n">asm_jmp_buf</span> <span class="n">env</span><span class="p">,</span> <span class="kt">int</span> <span class="n">val</span><span class="p">);</span>
+</pre></div>
+
+
+<div class="fenced fenced-red">
+<h4 id="_6">我们如何测试你的代码？</h4>
+<p>框架代码中已经包含了一定数量的测试。但我们有更多的测试用例，会单独编译你的 <code>asm-impl.c</code> 并和测试代码链接。你只需修改待实现函数的函数体即可。</p>
+</div>
+<h3 id="_7">待实现函数说明</h3>
+<p>前面三个函数的行为非常明确，你只需用汇编实现以下函数的行为即可，通过阅读例子和文档，熟悉内嵌汇编的写法：</p>
+<div class="codehilite"><pre><span></span><span class="kt">int64_t</span> <span class="nf">asm_add</span><span class="p">(</span><span class="kt">int64_t</span> <span class="n">a</span><span class="p">,</span> <span class="kt">int64_t</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="kt">int</span> <span class="nf">asm_popcnt</span><span class="p">(</span><span class="kt">uint64_t</span> <span class="n">x</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kt">int</span> <span class="n">s</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">64</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">((</span><span class="n">x</span> <span class="o">&gt;&gt;</span> <span class="n">i</span><span class="p">)</span> <span class="o">&amp;</span> <span class="mi">1</span><span class="p">)</span> <span class="n">s</span><span class="o">++</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">s</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="kt">void</span> <span class="o">*</span><span class="nf">asm_memcpy</span><span class="p">(</span><span class="kt">void</span> <span class="o">*</span><span class="n">dest</span><span class="p">,</span> <span class="k">const</span> <span class="kt">void</span> <span class="o">*</span><span class="n">src</span><span class="p">,</span> <span class="kt">size_t</span> <span class="n">n</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">return</span> <span class="n">memcpy</span><span class="p">(</span><span class="n">dest</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">n</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>大家可能对 <code>setjmp</code>/<code>longjmp</code> 比较陌生，属于不太常用的 C 标准库函数。和一对函数用于实现控制流的长跳转。它们的声明包含在 <code>setjmp.h</code>，手册 (<code>man setjmp</code>) 的内容与我们需要实现的 <code>asm_setjmp</code>/<code>asm_longjmp</code> 行为一致：</p>
+<div class="codehilite"><pre><span></span><span class="kt">int</span> <span class="nf">setjmp</span><span class="p">(</span><span class="kt">jmp_buf</span> <span class="n">env</span><span class="p">);</span>
+<span class="kt">void</span> <span class="nf">longjmp</span><span class="p">(</span><span class="kt">jmp_buf</span> <span class="n">env</span><span class="p">,</span> <span class="kt">int</span> <span class="n">val</span><span class="p">);</span>
+</pre></div>
+
+
+<blockquote>
+<p><code>setjmp</code>/<code>longjmp</code> functions are used for performing "nonlocal gotos": transferring execution from one          function to a predetermined location in another function.  The <code>setjmp()</code> function dynamically  establishes  the          target to which control will later be transferred, and <code>longjmp()</code> performs the transfer of execution.</p>
+<p>The  <code>setjmp()</code>  function saves various information about the calling environment (typically, the stack pointer,          the instruction pointer, possibly the values of other registers and the signal mask) in  the  buffer  env  for          later use by <code>longjmp()</code>.  In this case, <code>setjmp()</code> returns 0.</p>
+<p>The  <code>longjmp()</code> function uses the information saved in <code>env</code> to transfer control back to the point where <code>setjmp()</code>          was called and to restore ("rewind") the stack to its state at the time of the <code>setjmp()</code>  call.   In  addition,          and  depending  on  the  implementation (see NOTES), the values of some other registers and the process signal          mask may be restored to their state at the time of the <code>setjmp()</code> call.</p>
+<p>Following a successful <code>longjmp()</code>, execution continues as if <code>setjmp()</code> had returned for  a  second  time.   This          "fake"  return can be distinguished from a true <code>setjmp()</code> call because the "fake" return returns the value provided in <code>val</code>.  If the programmer mistakenly passes the value <code>0</code> in <code>val</code>, the "fake" return will  instead  return <code>1</code>.                  </p>
+</blockquote>
+<p>简单来说，<code>setjmp</code> 会在调用时对当前程序的运行状态做一个<strong>轻量级快照</strong> (保存在 <code>env</code> 参数中)，并返回 <code>0</code>。只要 <code>setjmp</code> 时调用的函数不返回，程序在运行过程中可以随时调用 <code>longjmp</code> 跳转到 <code>setjmp</code> 快照时的程序状态，无论中间间隔了多少函数调用，并且给 <code>setjmp</code> 一个特定的返回值。我们可以通过下面的小例子理解 <code>setjmp</code>/<code>longjmp</code> 的行为：</p>
+<div class="codehilite"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;setjmp.h&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;stdio.h&gt;</span><span class="cp"></span>
+
+<span class="kt">jmp_buf</span> <span class="n">env</span><span class="p">;</span>
+
+<span class="kt">int</span> <span class="nf">f</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">n</span> <span class="o">&gt;=</span> <span class="mi">8</span><span class="p">)</span> <span class="n">longjmp</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">n</span><span class="p">);</span> <span class="c1">// 某个条件达成时，恢复快照</span>
+  <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Call f(%d)</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">n</span><span class="p">);</span>
+  <span class="n">f</span><span class="p">(</span><span class="n">n</span> <span class="o">+</span> <span class="mi">1</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
+  <span class="kt">int</span> <span class="n">r</span> <span class="o">=</span> <span class="n">setjmp</span><span class="p">(</span><span class="n">env</span><span class="p">);</span> <span class="c1">// 快照</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">r</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">f</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span> <span class="c1">// longjmp goes here</span>
+    <span class="n">printf</span><span class="p">(</span><span class="s">&quot;Recursion reaches %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span> <span class="n">r</span><span class="p">);</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>利用 <code>setjmp</code>/<code>longjmp</code>，大家可以在编写递归搜索 (DFS) 时，在找到一个合法解以后立即退出递归。<code>setjmp</code>/<code>longjmp</code> 也是计算机系统研究中一个有用的 hacking 技巧——它能以非常小的代价实现进程状态的快照。请大家 STFW 理解 <code>jmp_buf</code> 的定义和这两个函数的用法。在本实验中，用内嵌汇编实现 <code>asm_setjmp</code> 快照、 <code>asm_longjmp</code> 长跳转，但无需考虑信号 (信号机制将在后续课程中介绍)。</p>
+<div class="fenced fenced-blue">
+<h4 id="_8">常见的困惑：这玩意有啥用？</h4>
+<p>当大家 STFW 时，可能会发现理解 <code>setjmp</code>/<code>longjmp</code> 时遇到一定的困难，并且不知道我们到底为什么要用这样的作业折磨大家。此时一定是想放弃的——抱一下大腿、去网上找一个答案就完事了。然而你可以选择再坚持一下，当你完成的时候，你会对程序的机器级表示有全新、深刻的理解。</p>
+</div>
+<h2 id="inline-assembly">内嵌汇编 (inline assembly)</h2>
+<h3 id="_9">先看一个例子</h3>
+<p>在解释内嵌汇编的语法等之前，我们先看一个实现 “加一” 的例子：</p>
+<div class="codehilite"><pre><span></span><span class="kt">int</span> <span class="nf">inc</span><span class="p">(</span><span class="kt">int</span> <span class="n">x</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">asm</span> <span class="p">(</span><span class="s">&quot;incl %[t];&quot;</span>
+       <span class="o">:</span> <span class="p">[</span><span class="n">t</span><span class="p">]</span> <span class="s">&quot;+r&quot;</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+      <span class="p">);</span>
+  <span class="k">return</span> <span class="n">x</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>其中，内嵌汇编是一条 <code>incl</code> 指令，它用 “<code>[t]</code>” 指定了一个名为 “t” 的操作数 (operand)，它能够被分配到任意寄存器，并且同时作为输入和输出 (<code>"+r"</code>)，在内嵌汇编被调用前，编译器会确保 <code>%[t]</code> 寄存器的值是 <code>x</code> 的数值。它会被编译成如下汇编代码 (使用 <code>-Os</code> 优化大小)：</p>
+<div class="codehilite"><pre><span></span><span class="mo">0000000000000000</span> <span class="o">&lt;</span><span class="n">inc</span><span class="o">&gt;:</span>
+   <span class="mi">0</span><span class="o">:</span>   <span class="mi">89</span> <span class="n">f8</span>                   <span class="n">mov</span>    <span class="o">%</span><span class="n">edi</span><span class="p">,</span><span class="o">%</span><span class="n">eax</span>
+   <span class="mi">2</span><span class="o">:</span>   <span class="n">ff</span> <span class="n">c0</span>                   <span class="n">inc</span>    <span class="o">%</span><span class="n">eax</span>
+   <span class="mi">4</span><span class="o">:</span>   <span class="n">c3</span>                      <span class="n">retq</span>
+</pre></div>
+
+
+<p>在上述代码中，<code>[t]</code> 被分配为了 <code>eax</code> 寄存器。</p>
+<h3 id="_10">内嵌汇编</h3>
+<p>在本实验中，我们只需要用到如下的内嵌汇编语法 (内嵌汇编可以跳转到程序的其他部分，不过我们暂时用不到)</p>
+<div class="codehilite"><pre><span></span><span class="k">asm</span> <span class="p">(</span> <span class="c1">// 1. 汇编代码 (字符串)</span>
+    <span class="o">:</span> <span class="c1">// 2. 汇编代码的输出操作数</span>
+    <span class="o">:</span> <span class="c1">// 3. 汇编代码的输入操作数</span>
+    <span class="o">:</span> <span class="c1">// 4. 汇编代码可能改写的寄存器 (clobber)</span>
+    <span class="p">);</span>
+</pre></div>
+
+
+<p>其中：</p>
+<ol>
+<li>
+<p>汇编代码就是一个普通的 C 字符串。汇编代码会原样传递给汇编器 (assembler)。汇编代码用换行或 “;” 隔开，因此如果要书写多行的汇编，可以借助 C 语言预编译字符串拼接：</p>
+<div class="codehilite"><pre><span></span><span class="err">asm (&quot;movl $1, %eax\n&quot;</span>
+<span class="err">     &quot;movl $1, %ebx;&quot;</span>
+<span class="err">     ... );</span>
+<span class="err">...</span>
+</pre></div>
+
+
+</li>
+<li>
+<p>输出操作数，相当于 “告诉” 编译器内联汇编的结果放在了哪里，并且希望把它们复制给 C 语言世界里的什么变量。之前的 <code>"+r"(x)</code> 的含义就是告诉 gcc 可以任意选择寄存器，但输出给 <code>x</code> 变量；</p>
+</li>
+<li>输入操作数，用于把 C 语言世界中的变量值传递进内嵌汇编，例如 <code>"a"(x)</code> 表示把 <code>x</code> 的值复制给 <code>rax</code> 寄存器。</li>
+<li>汇编代码中可能修改的寄存器。编译器在将 C 代码编译成汇编代码时，会为局部变量和临时结果分配寄存器或堆栈上的内存。因此，内嵌汇编必须不遗漏地声明它们可能会修改的寄存器，否则可能会产生毁灭性的后果。</li>
+</ol>
+<div class="fenced fenced-red">
+<h4 id="_11">理解内嵌汇编</h4>
+<p>编译器<strong>完全不知道</strong>汇编代码的含义，而是把那段汇编代码看成一个黑盒子 (black box)——你甚至可以使用 <code>.byte</code> 直接用二进制方式书写指令序列。汇编代码直到 assembly 阶段，才会被汇编器解析。</p>
+<p>因此，你必须非常谨慎地 “告诉” 编译器汇编代码的行为——黑盒子的输入、输出是什么，以及黑盒子可能影响的寄存器 (clobber)。带着这个基本概念，阅读文档时应该不再感到困难了。</p>
+</div>
+<p>由于内嵌汇编是一个行为明确的 “黑盒子”，因此编译器能对内嵌汇编进行相当程度的优化，例如如果我们将刚才的代码稍作修改：</p>
+<div class="codehilite"><pre><span></span><span class="kt">int</span> <span class="nf">inc</span><span class="p">(</span><span class="kt">int</span> <span class="n">y</span><span class="p">,</span> <span class="kt">int</span> <span class="n">x</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">y</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">asm</span> <span class="p">(</span><span class="s">&quot;incl %[x];&quot;</span>
+         <span class="o">:</span> <span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="s">&quot;+r&quot;</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+        <span class="p">);</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">x</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<div class="codehilite"><pre><span></span><span class="err">0000000000000000 &lt;inc&gt;:</span>
+<span class="err">   0:   89 f0                   mov    %esi,%eax</span>
+<span class="err">   2:   31 d2                   xor    %edx,%edx</span>
+<span class="err">   4:   39 fa                   cmp    %edi,%edx</span>
+<span class="err">   6:   7d 06                   jge    e &lt;inc+0xe&gt;</span>
+<span class="err">   8:   ff c0                   inc    %eax</span>
+<span class="err">   a:   ff c2                   inc    %edx</span>
+<span class="err">   c:   eb f6                   jmp    4 &lt;inc+0x4&gt;</span>
+<span class="err">   e:   c3                      retq</span>
+</pre></div>
+
+
+<p>可以看到，gcc 依然正确地把 <code>x</code> 分配给了 <code>eax</code> 寄存器，并将循环变量分配给了 <code>edx</code> 寄存器。</p>
+<h3 id="_12">文档</h3>
+<p>在这个实验中，你需要 RTFM。我们提供了一些编写内嵌汇编时常用的文档。在做这个实验的过程中，你会发现官方文档还是最好用的：</p>
+<ul>
+<li>GCC 官方文档：<a href="https://gcc.gnu.org/onlinedocs/gcc/Using-Assembly-Language-with-C.html">How to Use Inline Assembly Language in C Code</a>，权威、全面。</li>
+<li><a href="https://ibiblio.org/gferg/ldp/GCC-Inline-Assembly-HOWTO.html">GCC-Inline-Assembly-HOWTO</a>，更容易上手，有相当多的例子供大家学习和参考，但部分内容过时 (少量代码无法在当前 gcc 编译通过)。</li>
+</ul>
+<h3 id="_13">提示</h3>
+<p>最后，你们可能会在实现 <code>setjmp</code>/<code>longjmp</code> (以及其他函数) 时遇到一定的困难，出现错误的计算、segmentation fault 等。</p>
+<div class="fenced fenced-blue">
+<h4 id="_14">怎么办？</h4>
+<p>不要忘记：在你感到不爽的时候，一定有工具可以帮你。如果想排查自己的汇编哪里错了，最好的办法就是跑一跑，调试它——你的汇编不会很长，如果能动态在运行时检查程序的执行流和寄存器的值，那真是再好不过了。好消息是 gdb 就能帮我们搞定！以下就是一个调试汇编的例子：</p>
+<center><p><img alt="" src="../static/wiki/ics/2019/img/gdb-asm.jpg" width="500px" /></p></center><p>怎么样，非常方便吧？涉及到两个小 trick：</p>
+<ol>
+<li>使用了 gdb 的脚本，不必每次都重复键入大量的命令 (<code>file asm-64</code>, <code>b asm_setjmp</code> 等等)；</li>
+<li>使用了 asm layout (想同时观看寄存器的数值可以使用 regs layout)，很方便地看到汇编代码。</li>
+</ol>
+<p>通过这个例子，你理解到 STFW 是非常重要的——好的工具能极大提高你的效率。</p>
+</div>
+    </div>
+  </div>
+</center>
+
+<div class="footer-bottom">
+  <center>
+    <div class="copyright"> © 2020 Yanyan Jiang, All rights reserved </div>
+  </center>
+</div>
+
+
+    <script>
+      $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+      })
+
+      $("math").each(function() {
+        var tex = $(this).text();
+        var html = katex.renderToString(tex, {
+          displayMode: $(this).attr('class') == 'block-math',
+          throwOnError: false
+        });
+        $(this).replaceWith(html);
+      });
+
+      function get_token() {
+        var match = document.cookie.match(new RegExp('(^| )token=([^;]+)'));
+        if (match) return match[2];
+        else return "";
+      }
+
+      var token = get_token();
+      var hint = "token", box = $("#token-input");
+
+      if (token == "") { box.val(hint); }
+      else { box.val(token); }
+
+      function login() {
+        var token = box.val()
+        document.cookie = 'token=' + token + '; expires=Fri, 31 Dec 9999 23:59:59 GMT;';
+        if (token == '') {
+          box.val(hint);
+        }
+      }
+    </script>
+  </body>
+</html>

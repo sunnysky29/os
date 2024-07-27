@@ -1,0 +1,463 @@
+<html>
+  <Head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+    
+    
+
+    <link rel="stylesheet" href="../static/css/fonts/crmison.css"/>
+    <link rel="stylesheet" href="../static/css/fonts/fira_code.css"/>
+    <link rel="stylesheet" href="../static/css/fonts/ptsans.css"/>
+    <link rel="stylesheet" href="../static/css/katex.min.css"/>
+    <link rel="stylesheet" href="../static/css/wiki.css"/>
+    <link rel="stylesheet" href="../static/css/codehilite.css"/>
+
+    <script src="../static/js/jquery.min.js"></script>
+    <script src="../static/js/bootstrap.bundle.min.js"></script>
+    <script src="../static/js/katex.min.js"></script>
+    
+<link rel="stylesheet" href="../static/css/reveal.css"/>
+<link rel="stylesheet" href="../static/css/reveal-slides.css"/>
+
+
+    <title>虚拟化：处理器调度 (1)</title>
+  </Head>
+  <body>
+   
+   
+
+<div class="reveal">
+  <div class="slides">
+    <section>
+<div class="slide-container"><div class="center middle"><h1 id="1">虚拟化：处理器调度 (1)</h1>
+<div plugin="include(page='Slides_Author')"><div class="hidden-in-outline author-block author-affiliation">
+<p><a href="http://ics.nju.edu.cn/~jyy">蒋炎岩</a></p>
+</div>
+<div class="row hidden-in-outline author-block justify-content-md-center">
+<p><div class="author-affiliation">    <a href="http://www.nju.edu.cn/"><p>南京大学</p>    <img alt="" class="inline-img" height="64px" src="../static/wiki/common/slides-author/nju-logo.png"></img></a>
+  </div>
+  <div class="author-affiliation">
+   <a href="http://cs.nju.edu.cn/"><p>计算机科学与技术系</p>
+    <img alt="" class="inline-img" height="64px" src="../static/img/njucs.jpg"></img></a>
+  </div>
+  <div class="author-affiliation">
+    <a href="http://moon.nju.edu.cn/"><p>计算机软件研究所</p>
+    <img alt="" class="inline-img" height="64px" src="../static/img/ics-nju.png"></img></a>
+  </div></p>
+</div></div></div></div>
+</section>
+
+<section>
+<div class="slide-container"><div class=""><h2 id="_1">预告：期中测验</h2>
+<blockquote>
+<p>4.20 (周一) 随堂测验 (14:00 开始, 16:00 结束)</p>
+<ul>
+<li>一道上机题 (50%)<ul>
+<li>并发编程 (<code>threads.h</code>), Online Judge 提交，但无评测结果</li>
+</ul>
+</li>
+<li>一个问卷 (50%)<ul>
+<li>问卷系统提交</li>
+</ul>
+</li>
+</ul>
+</blockquote>
+<p>自觉维护学术诚信</p>
+<ul>
+<li><span class="blue">正确性不作为评分依据</span></li>
+<li>独立完成 (不借助互联网搜索、不讨论)<ul>
+<li><span class="red">如有特殊困难不能参加，请由辅导员向我说明</span></li>
+</ul>
+</li>
+</ul>
+<hr></hr>
+<p>评分标准</p>
+<ul>
+<li>按时提交，得 100%</li>
+<li>当天提交，得 80%</li>
+<li>周三 (4.22) 前提交，得 70%</li>
+</ul></div></div>
+</section>
+
+<section>
+<div class="slide-container"><div class=""><h2 id="_1">本讲概述</h2>
+<blockquote>
+<p>我们已经知道如何在线程/进程之间切换 (分时虚拟化处理器)</p>
+<ul>
+<li>这里引入了一个新的问题<ul>
+<li>系统里有很多进程</li>
+<li>下次中断后应该让哪个在处理器上运行？<ul>
+<li>还记得 <a href="../static/wiki/os/2020/demos/trivial-os.c">trivial-os.c</a> 是怎么做得吗？</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</blockquote>
+<p>处理器调度</p>
+<ul>
+<li>处理器调度问题</li>
+<li>单处理器分时调度</li>
+<li>多处理器调度</li>
+</ul></div></div>
+</section>
+
+<section>
+<section>
+<div class="slide-container"><div class="center middle"><h1 id="_1">处理器调度</h1></div></div>
+</section>
+<section>
+<div class="slide-container"><div class=""><h2 id="_1">一个批处理系统时代就有的古老问题</h2>
+<p>有 <math class="inline-math">n</math> 个任务，分别需要 <math class="inline-math">t_1, t_2, \ldots, t_n</math> 时间完成</p>
+<ul>
+<li>任务一旦开始就要完成到结束 (批处理)</li>
+<li>按照什么顺序完成它们最好？<ul>
+<li>仿佛计算中心前一天接收代码，第二天运行给出结果</li>
+</ul>
+</li>
+</ul>
+<div class="fragment">
+<blockquote>
+<p>主要问题：什么是 “好”？</p>
+<ul>
+<li><del>领导的任务先完成比较好</del> (模型里没有这一点)</li>
+<li>最小化 cost: <span class="red">平均完成时间</span><ul>
+<li>小学生都会做 (!)</li>
+<li>Shortest Job First (SJF)</li>
+</ul>
+</li>
+<li>……</li>
+</ul>
+</blockquote>
+</div></div></div>
+</section>
+<section>
+<div class="slide-container"><div class=""><h2 id="_1">改变我们的假设</h2>
+<p>任务可以在一天中的任意时刻到达</p>
+<ul>
+<li>任务的 cost = 完成时间 - 到达时间</li>
+<li>如何最小化所有任务的平均 cost?</li>
+</ul>
+<div class="fragment">
+<blockquote>
+<p>在任意时刻，如果有 <math class="inline-math">k</math> 个任务在等待，这个时刻就要付出 <math class="inline-math">k</math> 的 cost</p>
+<ul>
+<li>所以应该以减少 <math class="inline-math">k</math> 为最优先考虑<ul>
+<li>让当前<span class="red">剩余执行时间最小</span>的任务执行！</li>
+<li>新到的 short job 会 “抢占” 当前 job 执行<ul>
+<li>Shortest Time-to-Completion First (STCF)</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</blockquote>
+<p>算法题时间到此结束</p>
+</div></div></div>
+</section>
+</section>
+
+<section>
+<section>
+<div class="slide-container"><div class="center middle"><h1 id="1">单处理器分时调度 (1)</h1></div></div>
+</section>
+<section>
+<div class="slide-container"><div class=""><h2 id="_1">中断/上下文切换机制、处理器调度策略</h2>
+<blockquote>
+<p>中断 (机制, mechanism: 提供什么功能)</p>
+</blockquote>
+<ul>
+<li>进程不再独占处理器直到运行完成</li>
+<li>操作系统代码可以定时强制得到执行<ul>
+<li>保存寄存器 (上下文) 到内存</li>
+</ul>
+</li>
+</ul>
+<hr></hr>
+<blockquote>
+<p>处理器调度 (策略, policy: 如何使用这些功能)</p>
+</blockquote>
+<ul>
+<li>系统中有很多进程等待执行<ul>
+<li>操作系统代码执行调度策略选择一个进程</li>
+<li>使用中断返回机制运行上下文</li>
+</ul>
+</li>
+</ul></div></div>
+</section>
+<section>
+<div class="slide-container"><div class=""><h2 id="_1">单处理器分时调度：基本假设</h2>
+<blockquote>
+<ol>
+<li>进程是 <code>while (1) do_sth()</code> 的循环<ul>
+<li>执行计算，使用 CPU</li>
+<li>等待 I/O 返回，不使用 CPU (通常时间较长)</li>
+</ul>
+</li>
+<li>处理器以固定的频率被中断</li>
+<li>随时可能有新的进程被创建/旧的进程退出</li>
+</ol>
+</blockquote></div></div>
+</section>
+<section>
+<div class="slide-container"><div class=""><h2 id="round-robin">策略: Round-Robin</h2>
+<p>假设当前 <math class="inline-math">T_i</math> 运行</p>
+<ul>
+<li>中断后试图切换到下一个线程 <math class="inline-math">T_{(i+1)\,\textrm{mod}\,n}</math></li>
+<li>如果下一个线程正在等待 I/O 返回，继续尝试下一个<ul>
+<li>如果系统所有的线程都不需要 CPU，就调度 idle 进程执行</li>
+<li>执行 <code>hlt</code> 指令进入低功耗模式等待中断</li>
+</ul>
+</li>
+</ul>
+<hr></hr>
+<p>我们的 <a href="../static/wiki/os/2020/demos/thread-os.c">thread-os.c</a> 实际上实现了 Round-Robin 的调度器</p>
+<ul>
+<li>中断之间的进程执行称为 “时间片” (time-slicing)</li>
+</ul>
+<p><img alt="" class="center" src="../static/wiki/os/2020/slides/img/sched-rr.png" width="650px"></img></p></div></div>
+</section>
+<section>
+<div class="slide-container"><div class=""><h2 id="_1">策略：引入优先级</h2>
+<p><img alt="" class="float-right" src="../static/wiki/os/2020/slides/img/haorenka.jpg" width="250px"></img></p>
+<p>UNIX niceness</p>
+<ul>
+<li>-20 .. 19<ul>
+<li>越 nice，越被不 nice 的人抢占</li>
+<li>-20: 极坏; most favorable to the process</li>
+<li>19: 极好; least favorable to the process</li>
+<li><del>好人流下了悔恨的泪水</del></li>
+</ul>
+</li>
+<li>nice 相差 10, CPU 获得相差 10 倍<ul>
+<li>nice 相差 1 大约相差 1.25 倍</li>
+</ul>
+</li>
+</ul>
+<p><img alt="" class="center" src="../static/wiki/os/2020/slides/img/unix-nice.jpg" width="750px"></img></p>
+<ul>
+<li>不妨试一试: nice/renice</li>
+</ul></div></div>
+</section>
+<section>
+<div class="slide-container"><div class=""><h2 id="mlfq">策略：多级反馈调度 (MLFQ)</h2>
+<blockquote>
+<p>假设：系统里有两种进程</p>
+<ul>
+<li>交互进程 (vi, vscode, ...), 大部分时候在等待<ul>
+<li>优先调度它们能提升用户体验，减少卡顿 (试想 Round-Robin)</li>
+</ul>
+</li>
+<li>计算进程 (gcc, ld, ...), 在处理器空闲时才执行</li>
+</ul>
+</blockquote>
+<div class="fragment">
+<p><img alt="" class="float-right" src="../static/wiki/os/2020/slides/img/MLFQ.png" width="400px"></img></p>
+<p>设置若干个 Round-Robin 队列</p>
+<ul>
+<li>每个队列对应一个优先级</li>
+</ul>
+<p>调度策略</p>
+<ul>
+<li>优先调度高优先级队列</li>
+<li>用完时间片 (被中断) → ?</li>
+<li>主动让出 CPU 等待 I/O → ?<ul>
+<li>很直观也很有趣，请阅读教科书</li>
+</ul>
+</li>
+</ul>
+</div></div></div>
+</section>
+<section>
+<div class="slide-container"><div class=""><h2 id="complete-fair-scheduling-cfs">Complete Fair Scheduling (CFS)</h2>
+<blockquote>
+<p>试图去模拟一个 “Ideal Multi-Tasking CPU”: </p>
+<ul>
+<li>“Ideal multi-tasking CPU” is a (non-existent :-)) CPU that has 100% physical power and which can run each task at precise equal speed, in parallel, each at <math>1/n</math>. For example: if there are 2 tasks running, then it runs each at 50% physical power — i.e., actually in parallel.</li>
+</ul>
+</blockquote>
+<p>让系统里的所有进程尽可能公平地共享处理器</p>
+<ul>
+<li>记录系统中每个进程的精确运行时间 (vruntime, nanoseconds)</li>
+<li>中断发生后，切换到 vruntime 最少的进程执行<ul>
+<li>下次中断后，当前进程的 vruntime 可能就不是最小的了</li>
+</ul>
+</li>
+</ul></div></div>
+</section>
+<section>
+<div class="slide-container"><div class=""><h2 id="complete-fair-scheduling-contd">Complete Fair Scheduling (cont'd)</h2>
+<blockquote>
+<p>复杂的情况 (1): 创建新进程/线程</p>
+<ul>
+<li>子进程继承父进程的 vruntime</li>
+</ul>
+</blockquote>
+<div class="codehilite"><pre><span></span><span class="k">static</span> <span class="kt">void</span> <span class="nf">task_fork_fair</span><span class="p">(</span><span class="k">struct</span> <span class="n">task_struct</span> <span class="o">*</span><span class="n">p</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">struct</span> <span class="n">sched_entity</span> <span class="o">*</span><span class="n">se</span> <span class="o">=</span> <span class="o">&</span><span class="n">p</span><span class="o">-&gt;</span><span class="n">se</span><span class="p">,</span> <span class="o">*</span><span class="n">curr</span><span class="p">;</span>
+  <span class="p">...</span>
+  <span class="n">rq_lock</span><span class="p">(</span><span class="n">rq</span><span class="p">,</span> <span class="o">&</span><span class="n">rf</span><span class="p">);</span>
+  <span class="n">update_rq_clock</span><span class="p">(</span><span class="n">rq</span><span class="p">);</span>
+  <span class="n">cfs_rq</span> <span class="o">=</span> <span class="n">task_cfs_rq</span><span class="p">(</span><span class="n">current</span><span class="p">);</span>
+  <span class="n">curr</span> <span class="o">=</span> <span class="n">cfs_rq</span><span class="o">-&gt;</span><span class="n">curr</span><span class="p">;</span>
+  <span class="k">if</span> <span class="p">(</span><span class="n">curr</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">update_curr</span><span class="p">(</span><span class="n">cfs_rq</span><span class="p">);</span>
+    <span class="n">se</span><span class="o">-&gt;</span><span class="n">vruntime</span> <span class="o">=</span> <span class="n">curr</span><span class="o">-&gt;</span><span class="n">vruntime</span><span class="p">;</span> <span class="c1">// 继承父进程的 vruntime</span>
+  <span class="p">}</span>
+  <span class="n">place_entity</span><span class="p">(</span><span class="n">cfs_rq</span><span class="p">,</span> <span class="n">se</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+  <span class="p">...</span>
+</pre></div></div></div>
+</section>
+<section>
+<div class="slide-container"><div class=""><h2 id="complete-fair-scheduling-contd">Complete Fair Scheduling (cont'd)</h2>
+<blockquote>
+<p>复杂的情况 (2): I/O</p>
+<ul>
+<li>I/O (例如 1 分钟) 以后回来 vruntime 严重落后</li>
+<li>为了赶上，CPU 会全部归它所有</li>
+</ul>
+</blockquote>
+<p>解决：唤醒的线程</p>
+<ul>
+<li>获得 “最小” 的 vruntime (可以立即被执行)</li>
+</ul>
+<div class="codehilite"><pre><span></span><span class="k">if</span> <span class="p">(</span><span class="n">renorm</span> <span class="o">&&</span> <span class="n">curr</span><span class="p">)</span>
+  <span class="n">se</span><span class="o">-&gt;</span><span class="n">vruntime</span> <span class="o">+=</span> <span class="n">cfs_rq</span><span class="o">-&gt;</span><span class="n">min_vruntime</span><span class="p">;</span>
+</pre></div></div></div>
+</section>
+<section>
+<div class="slide-container"><div class=""><h2 id="complete-fair-scheduling-contd">Complete Fair Scheduling (cont'd)</h2>
+<blockquote>
+<p>实现优先级</p>
+<ul>
+<li>让好人的时间变得快一些，坏人的时间变得慢一些……</li>
+<li>vrt[i] / vrt[j] 的增加比例 = wt[j] / wt[i]</li>
+</ul>
+</blockquote>
+<div class="codehilite"><pre><span></span><span class="k">const</span> <span class="kt">int</span> <span class="n">sched_prio_to_weight</span><span class="p">[</span><span class="mi">40</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="cm">/* -20 */</span> <span class="mi">88761</span><span class="p">,</span> <span class="mi">71755</span><span class="p">,</span> <span class="mi">56483</span><span class="p">,</span> <span class="mi">46273</span><span class="p">,</span> <span class="mi">36291</span><span class="p">,</span>
+  <span class="cm">/* -15 */</span> <span class="mi">29154</span><span class="p">,</span> <span class="mi">23254</span><span class="p">,</span> <span class="mi">18705</span><span class="p">,</span> <span class="mi">14949</span><span class="p">,</span> <span class="mi">11916</span><span class="p">,</span>
+  <span class="cm">/* -10 */</span>  <span class="mi">9548</span><span class="p">,</span>  <span class="mi">7620</span><span class="p">,</span>  <span class="mi">6100</span><span class="p">,</span>  <span class="mi">4904</span><span class="p">,</span>  <span class="mi">3906</span><span class="p">,</span>
+  <span class="cm">/*  -5 */</span>  <span class="mi">3121</span><span class="p">,</span>  <span class="mi">2501</span><span class="p">,</span>  <span class="mi">1991</span><span class="p">,</span>  <span class="mi">1586</span><span class="p">,</span>  <span class="mi">1277</span><span class="p">,</span>
+  <span class="cm">/*   0 */</span>  <span class="mi">1024</span><span class="p">,</span>   <span class="mi">820</span><span class="p">,</span>   <span class="mi">655</span><span class="p">,</span>   <span class="mi">526</span><span class="p">,</span>   <span class="mi">423</span><span class="p">,</span>
+  <span class="cm">/*   5 */</span>   <span class="mi">335</span><span class="p">,</span>   <span class="mi">272</span><span class="p">,</span>   <span class="mi">215</span><span class="p">,</span>   <span class="mi">172</span><span class="p">,</span>   <span class="mi">137</span><span class="p">,</span>
+  <span class="cm">/*  10 */</span>   <span class="mi">110</span><span class="p">,</span>    <span class="mi">87</span><span class="p">,</span>    <span class="mi">70</span><span class="p">,</span>    <span class="mi">56</span><span class="p">,</span>    <span class="mi">45</span><span class="p">,</span>
+  <span class="cm">/*  15 */</span>    <span class="mi">36</span><span class="p">,</span>    <span class="mi">29</span><span class="p">,</span>    <span class="mi">23</span><span class="p">,</span>    <span class="mi">18</span><span class="p">,</span>    <span class="mi">15</span><span class="p">,</span>
+<span class="p">};</span>
+</pre></div></div></div>
+</section>
+<section>
+<div class="slide-container"><div class=""><h2 id="complete-fair-scheduling">Complete Fair Scheduling: 实现</h2>
+<blockquote>
+<p>思考题：用什么数据结构维护所有进程的 vruntime?</p>
+</blockquote>
+<p>我们需要什么操作</p>
+<div class="fragment">
+<ul>
+<li>为每个进程维护映射 <math class="inline-math">t \mapsto vt(t)</math><ul>
+<li>维护进程的 vruntime <math class="inline-math">vt(t) \leftarrow vt(t) + \Delta_t / w</math></li>
+<li>找到 <math class="inline-math">t</math> 满足 <math class="inline-math">vt(t)</math> 最小</li>
+<li>进程创建/退出/睡眠/唤醒时插入/删除 <math class="inline-math">t</math></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="fragment">
+<p>又是有序集合！上一个见到的有序集合：地址空间中的内存映射</p>
+<p><img alt="" class="center" src="../static/wiki/os/2020/slides/img/rbtree.svg" width="500px"></img></p>
+</div></div></div>
+</section>
+</section>
+  </div>
+</div>
+
+<script src="../static/js/reveal.js"></script>
+<script>
+  slide_num = -1;
+  function update_slide_num(n) {
+    if (slide_num == -1) {
+      setTimeout(function() {
+        if (slide_num != -1) {
+          while (!Reveal.isFirstSlide()) {
+            Reveal.prev();
+          }
+          while (Reveal.getSlidePastCount() + 1 < slide_num && !Reveal.isLastSlide()) {
+            Reveal.next();
+          }
+          slide_num = -1;
+        }
+      }, 500);
+      slide_num = 0;
+    }
+    slide_num = slide_num * 10 + n;
+  }
+
+  Reveal.initialize({
+    width: 1024,
+    height: 768,
+    margin: 0,
+    slideNumber: 'c/t',
+    controls: true,
+    progress: false,
+    maxScale: 10,
+    fragments: true,
+    hash: true,
+    transition: 'slide',
+    transitionSpeed: 'fast',
+    backgroundTransition: 'slide',
+    hideCursorTime: 1000,
+    navigationMode: 'default',
+    keyboard: {
+      13: 'next',
+      48: function() { update_slide_num(0) },
+      49: function() { update_slide_num(1) },
+      50: function() { update_slide_num(2) },
+      51: function() { update_slide_num(3) },
+      52: function() { update_slide_num(4) },
+      53: function() { update_slide_num(5) },
+      54: function() { update_slide_num(6) },
+      55: function() { update_slide_num(7) },
+      56: function() { update_slide_num(8) },
+      57: function() { update_slide_num(9) },
+    }
+  });
+</script>
+
+
+
+    <script>
+      $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+      })
+
+      $("math").each(function() {
+        var tex = $(this).text();
+        var html = katex.renderToString(tex, {
+          displayMode: $(this).attr('class') == 'block-math',
+          throwOnError: false
+        });
+        $(this).replaceWith(html);
+      });
+
+      function get_token() {
+        var match = document.cookie.match(new RegExp('(^| )token=([^;]+)'));
+        if (match) return match[2];
+        else return "";
+      }
+
+      var token = get_token();
+      var hint = "token", box = $("#token-input");
+
+      if (token == "") { box.val(hint); }
+      else { box.val(token); }
+
+      function login() {
+        var token = box.val()
+        document.cookie = 'token=' + token + '; expires=Fri, 31 Dec 9999 23:59:59 GMT;';
+        if (token == '') {
+          box.val(hint);
+        }
+      }
+    </script>
+  </body>
+</html>
