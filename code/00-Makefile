@@ -1,0 +1,10 @@
+
+#   export AM_HOME=...../codes/os/code/abstract-machine  绝对路径
+#  make  -f 00-Makefile run ARCH=native
+
+
+NAME := kernel
+SRCS := 00-thread-os.c
+
+
+include $(AM_HOME)/Makefile
