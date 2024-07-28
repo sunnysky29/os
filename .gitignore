@@ -138,7 +138,6 @@ dmypy.json
 *.swm
 *.swn
 *.swo
-*.img
 a.out
 *.tmp
 mandelbrot.ppm
