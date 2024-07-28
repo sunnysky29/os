@@ -1,6 +1,7 @@
 
-NAME = thread-os
-SRCS = thread-os.c
-export ARCH=x86-qemu
 
+NAME := hello
+SRCS := 00-hello-am.c 
 include $(AM_HOME)/Makefile
+
+
