@@ -1,0 +1,10 @@
+#   export AM_HOME=...../codes/os/code/abstract-machine  绝对路径
+# 多处理器上的线程 “操作系统” , https://www.bilibili.com/video/BV1N741177F5?p=8&vd_source=abeb4ad4122e4eff23d97059cf088ab4
+# /mirror_jyyos/wiki/OS2020_5.slides.html#/2/1
+# 启动4 个处理器：
+#  make -f 00-Makefile1    ARCH=native   run  smp=4
+
+
+NAME := kernel-1
+SRCS := 00-thread-os.c 
+include $(AM_HOME)/Makefile

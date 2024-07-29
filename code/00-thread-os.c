@@ -11,12 +11,12 @@
 
 typedef union task {
   struct {
-    const char *name;
-    union task *next;
-    void      (*entry)(void *);
+    const char *name;    //线程名字
+    union task *next;    //  下一个线程
+    void      (*entry)(void *);  // 保存的寄存器现场
     Context    *context;
   };
-  uint8_t stack[4096 * 3];
+  uint8_t stack[4096 * 3];  // 线程堆栈分配， 4kb*3
 } Task;
 
 Task *currents[MAX_CPU];
@@ -31,10 +31,10 @@ void unlock() { atomic_xchg(&locked, 0); }
 void func(void *arg) { // 每个线程执行的代码
   while (1) {
     lock();
-    // printf("Thread-%s on CPU #%d\n", arg, cpu_current());
-    printf("%s", arg);
+    printf("Thread-%s on CPU #%d\n", arg, cpu_current());
+    // printf("%s", arg);
     unlock();
-    for (int volatile i = 0; i < 10000000; i++) ;   //空循环
+    for (int volatile i = 0; i < 10000; i++) ;   //空循环
   }
 }
 
@@ -42,8 +42,8 @@ Task tasks[] = {
   { .name = "A", .entry = func },
   { .name = "B", .entry = func },
   { .name = "C", .entry = func },
-//   { .name = "D", .entry = func },
-//   { .name = "E", .entry = func },
+  { .name = "D", .entry = func },
+  { .name = "E", .entry = func },
 };
 
 // ------------------
@@ -61,7 +61,7 @@ Context *on_interrupt(Event ev, Context *ctx) {  // 中断处理
 }
 
 void mp_entry() {
-  iset(true);   //
+  iset(true);   // 每个处理器所做的操作都完全相同
   yield();  // 随后，os main 函数就不再返回了，os 变成--> 中断处理程序
 }
 
@@ -75,5 +75,5 @@ int main() {
     task->next    = &tasks[(i + 1) % LENGTH(tasks)];  // 若干 task ---> 循环链表
   }
   mpe_init(mp_entry);
-  // 
+  
 }
