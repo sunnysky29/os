@@ -13,7 +13,7 @@ void
 initlock(struct spinlock *lk, char *name)
 {
   lk->name = name;
-  lk->locked = 0;
+  lk->locked = 0;  //  初始化，未锁上
   lk->cpu = 0;
 }
 
@@ -25,8 +25,8 @@ void
 acquire(struct spinlock *lk)
 {
   pushcli(); // disable interrupts to avoid deadlock.
-  if(holding(lk))
-    panic("acquire");
+  if(holding(lk))  // 随处可见的 specification 检查 (防御性编程)
+    panic("acquire");  // 重入，终止运行----> console.c
 
   // The xchg is atomic.
   while(xchg(&lk->locked, 1) != 0)
@@ -35,18 +35,18 @@ acquire(struct spinlock *lk)
   // Tell the C compiler and the processor to not move loads or stores
   // past this point, to ensure that the critical section's memory
   // references happen after the lock is acquired.
-  __sync_synchronize();
+  __sync_synchronize();  // barrier
 
   // Record info about lock acquisition for debugging.
   lk->cpu = mycpu();
-  getcallerpcs(&lk, lk->pcs);
+  getcallerpcs(&lk, lk->pcs);  // 调试，记录函数调用栈
 }
 
 // Release the lock.
 void
 release(struct spinlock *lk)
 {
-  if(!holding(lk))
+  if(!holding(lk))  // 释放一把不持有的锁
     panic("release");
 
   lk->pcs[0] = 0;
@@ -90,8 +90,12 @@ int
 holding(struct spinlock *lock)
 {
   int r;
-  pushcli();
+  pushcli();  // 首先关闭处理器中断，保证原子性
   r = lock->locked && lock->cpu == mycpu();
+      // 当 r 为 true, 重入情况，bug:
+      // lock(&lk);
+      // lock(&lk);
+
   popcli();
   return r;
 }
@@ -114,11 +118,11 @@ pushcli(void)
 }
 
 void
-popcli(void)
+popcli(void)  //试图打开中断
 {
-  if(readeflags()&FL_IF)
+  if(readeflags()&FL_IF)  // 此时中断处于打开状态
     panic("popcli - interruptible");
-  if(--mycpu()->ncli < 0)
+  if(--mycpu()->ncli < 0)  // lock ， UNlock 不配对
     panic("popcli");
   if(mycpu()->ncli == 0 && mycpu()->intena)
     sti();
