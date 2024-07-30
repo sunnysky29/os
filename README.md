@@ -8,3 +8,12 @@
 
 xv6-public： （x86）
 https://github.com/mit-pdos/xv6-public/tree/master
+~~~
+
+make 
+make qemu
+
+ctrl a , x 退出
+~~~
+
+![](./pic/xv6.png)
