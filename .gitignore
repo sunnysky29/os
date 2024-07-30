@@ -144,3 +144,11 @@ mandelbrot.ppm
 
 ~$*.docx
 code/tmp
+*.d
+*.asm
+*.sym
+vectors.S
+bootblock
+entryother
+initcode
+initcode.out
