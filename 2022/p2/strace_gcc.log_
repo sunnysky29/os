@@ -1,0 +1,121 @@
+
+/*
+
+strace   -f gcc ./tryopen.c  2>&1 | vim  -
+
+:set nu 
+:%! grep execve
+:set nowrap
+:%!  grep -v  resumed   # 反向查找
+:%s/, /\r /g   # , 变 \r ，分方便阅读
+
+:w strace_gcc.log
+
+*/
+
+
+execve("/usr/bin/gcc"
+ ["gcc"
+ "./tryopen.c"]
+ 0x7ffc2d87b5c0 /* 24 vars */) = 0
+[pid 30665] execve("/usr/lib/gcc/x86_64-linux-gnu/11/cc1"
+ ["/usr/lib/gcc/x86_64-linux-gnu/11"...
+ "-quiet"
+ "-imultiarch"
+ "x86_64-linux-gnu"
+ "./tryopen.c"
+ "-quiet"
+ "-dumpdir"
+ "a-"
+ "-dumpbase"
+ "tryopen.c"
+ "-dumpbase-ext"
+ ".c"
+ "-mtune=generic"
+ "-march=x86-64"
+ "-fasynchronous-unwind-tables"
+ "-fstack-protector-strong"
+ "-Wformat"
+ "-Wformat-security"
+ "-fstack-clash-protection"
+ "-fcf-protection"
+ "-o"
+ "/tmp/cckxETBw.s"]
+ 0x2032090 /* 29 vars */ <unfinished ...>
+[pid 30666] execve("/usr/bin/as"
+ ["as"
+ "--64"
+ "-o"
+ "/tmp/ccFux0oK.o"
+ "/tmp/cckxETBw.s"]
+ 0x2032090 /* 29 vars */ <unfinished ...>
+[pid 30667] execve("/usr/lib/gcc/x86_64-linux-gnu/11/collect2"
+ ["/usr/lib/gcc/x86_64-linux-gnu/11"...
+ "-plugin"
+ "/usr/lib/gcc/x86_64-linux-gnu/11"...
+ "-plugin-opt=/usr/lib/gcc/x86_64-"...
+ "-plugin-opt=-fresolution=/tmp/cc"...
+ "-plugin-opt=-pass-through=-lgcc"
+ "-plugin-opt=-pass-through=-lgcc_"...
+ "-plugin-opt=-pass-through=-lc"
+ "-plugin-opt=-pass-through=-lgcc"
+ "-plugin-opt=-pass-through=-lgcc_"...
+ "--build-id"
+ "--eh-frame-hdr"
+ "-m"
+ "elf_x86_64"
+ "--hash-style=gnu"
+ "--as-needed"
+ "-dynamic-linker"
+ "/lib64/ld-linux-x86-64.so.2"
+ "-pie"
+ "-z"
+ "now"
+ "-z"
+ "relro"
+ "/usr/lib/gcc/x86_64-linux-gnu/11"...
+ "/usr/lib/gcc/x86_64-linux-gnu/11"...
+ "/usr/lib/gcc/x86_64-linux-gnu/11"...
+ "-L/usr/lib/gcc/x86_64-linux-gnu/"...
+ "-L/usr/lib/gcc/x86_64-linux-gnu/"...
+ "-L/usr/lib/gcc/x86_64-linux-gnu/"...
+ "-L/lib/x86_64-linux-gnu"
+ "-L/lib/../lib"
+ "-L/usr/lib/x86_64-linux-gnu"
+ ...]
+ 0x20324d0 /* 31 vars */ <unfinished ...>
+[pid 30668] execve("/usr/bin/ld"
+ ["/usr/bin/ld"
+ "-plugin"
+ "/usr/lib/gcc/x86_64-linux-gnu/11"...
+ "-plugin-opt=/usr/lib/gcc/x86_64-"...
+ "-plugin-opt=-fresolution=/tmp/cc"...
+ "-plugin-opt=-pass-through=-lgcc"
+ "-plugin-opt=-pass-through=-lgcc_"...
+ "-plugin-opt=-pass-through=-lc"
+ "-plugin-opt=-pass-through=-lgcc"
+ "-plugin-opt=-pass-through=-lgcc_"...
+ "--build-id"
+ "--eh-frame-hdr"
+ "-m"
+ "elf_x86_64"
+ "--hash-style=gnu"
+ "--as-needed"
+ "-dynamic-linker"
+ "/lib64/ld-linux-x86-64.so.2"
+ "-pie"
+ "-z"
+ "now"
+ "-z"
+ "relro"
+ "/usr/lib/gcc/x86_64-linux-gnu/11"...
+ "/usr/lib/gcc/x86_64-linux-gnu/11"...
+ "/usr/lib/gcc/x86_64-linux-gnu/11"...
+ "-L/usr/lib/gcc/x86_64-linux-gnu/"...
+ "-L/usr/lib/gcc/x86_64-linux-gnu/"...
+ "-L/usr/lib/gcc/x86_64-linux-gnu/"...
+ "-L/lib/x86_64-linux-gnu"
+ "-L/lib/../lib"
+ "-L/usr/lib/x86_64-linux-gnu"
+ ...]
+ 0x7ffddf46cda0 /* 31 vars */ <unfinished ...>
