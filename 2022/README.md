@@ -5,3 +5,7 @@
 ppt: 
 https://jyywiki.cn/OS/2022/index.html
 
+
+
+！！ 2022 jyy 代码参考：https://github.com/VGalaxies/jyy-os-code/tree/master
+
