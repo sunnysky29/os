@@ -1,6 +1,10 @@
 
 
 
+视频讲解 ： https://www.bilibili.com/video/BV15T4y1Q76V/?spm_id_from=333.788&vd_source=abeb4ad4122e4eff23d97059cf088ab4 ， 
+理解并发程序执行 (Peterson算法、模型检验与软件自动化工具) [南京大学2022操作系统-P4]
+
+
 ~~~
 
 

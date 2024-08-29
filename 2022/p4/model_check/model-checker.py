@@ -50,6 +50,7 @@ def hack(Class):
         hacked_ast = Instrument().visit(ast.parse(Class.source))
         hacked_src, vars = astor.to_source(hacked_ast), {}
         # set a breakpoint() here to see **magic happens**!
+        # breakpoint()
         exec(hacked_src, globals(), vars)
         Class.hacked, Class.hacked_src = vars[Class.__name__], hacked_src
     return Class
@@ -72,6 +73,7 @@ def execute(Class, trace):
         T.append(fn()) # a generator for a thread
     S = { t: T[i].__next__() for i, t in enumerate(threads) }
 
+    # breakpoint()
     while trace:
         chosen, tname, trace = trace[0], threads[trace[0]], trace[1:]
         try:
@@ -129,7 +131,7 @@ def check_bfs(Class):
     queue, vertices, edges = [s0], {s0.name: s0}, []
     while queue:
         u, queue = queue[0], queue[1:]
-        for chosen, _ in enumerate(threads):
+        for chosen, _ in enumerate(threads):  # 枚举线程
             v = State(Class, u.trace + [chosen])
             if v.name not in vertices:
                 queue.append(v)
