@@ -23,5 +23,7 @@ p5:
 ~~~
 python3  model-checker.py   ../p5/spinlock.py |  python3  visualize.py -t > p5/a.html
 
+python3  model-checker.py   ../p5/futex.py |  python3  visualize.py -t > p5/futex.html
+
 
 ~~~
