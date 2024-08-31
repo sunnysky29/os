@@ -27,3 +27,12 @@ python3  model-checker.py   ../p5/futex.py |  python3  visualize.py -t > p5/fute
 
 
 ~~~
+
+p6: 
+~~~
+python3  model-checker.py   ../p6/pc-cv.py
+
+
+
+~~~
+
