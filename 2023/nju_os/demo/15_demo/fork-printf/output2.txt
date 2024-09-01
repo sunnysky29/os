@@ -1,0 +1,5 @@
+[pid 22178] write(1, "Hello\nHello\n", 12 <unfinished ...>
+[pid 22179] write(1, "Hello\nHello\n", 12 <unfinished ...>
+[pid 22177] write(1, "Hello\nHello\n", 12 <unfinished ...>
+[pid 22175] write(1, "Hello\nHello\n", 12 <unfinished ...>
+[pid 22176] write(1, "Hello\nHello\nHello\nHello\nHello\nHe"..., 48Hello

@@ -1,0 +1,7 @@
+[pid 17766] write(1, "Hello\nHello\n", 12 <unfinished ...>
+[pid 17765] write(1, "Hello\nHello\n", 12 <unfinished ...>
+[pid 17766] <... write resumed>)        = 12
+[pid 17765] <... write resumed>)        = 12
+[pid 17764] write(1, "Hello\nHello\n", 12) = 12
+write(1, "Hello\nHello\n", 12)          = 12
+

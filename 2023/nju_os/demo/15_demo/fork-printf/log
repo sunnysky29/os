@@ -1,0 +1,100 @@
+execve("./a.out", ["./a.out"], 0x7ffffaf9e3d8 /* 67 vars */) = 0
+brk(NULL)                               = 0x5636b85ee000
+arch_prctl(0x3001 /* ARCH_??? */, 0x7ffca72c52f0) = -1 EINVAL (Invalid argument)
+mmap(NULL, 8192, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f4c37824000
+access("/etc/ld.so.preload", R_OK)      = -1 ENOENT (No such file or directory)
+openat(AT_FDCWD, "/etc/ld.so.cache", O_RDONLY|O_CLOEXEC) = 3
+newfstatat(3, "", {st_mode=S_IFREG|0644, st_size=63055, ...}, AT_EMPTY_PATH) = 0
+mmap(NULL, 63055, PROT_READ, MAP_PRIVATE, 3, 0) = 0x7f4c37814000
+close(3)                                = 0
+openat(AT_FDCWD, "/lib/x86_64-linux-gnu/libc.so.6", O_RDONLY|O_CLOEXEC) = 3
+read(3, "\177ELF\2\1\1\3\0\0\0\0\0\0\0\0\3\0>\0\1\0\0\0P\237\2\0\0\0\0\0"..., 832) = 832
+pread64(3, "\6\0\0\0\4\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0"..., 784, 64) = 784
+pread64(3, "\4\0\0\0 \0\0\0\5\0\0\0GNU\0\2\0\0\300\4\0\0\0\3\0\0\0\0\0\0\0"..., 48, 848) = 48
+pread64(3, "\4\0\0\0\24\0\0\0\3\0\0\0GNU\0\244;\374\204(\337f#\315I\214\234\f\256\271\32"..., 68, 896) = 68
+newfstatat(3, "", {st_mode=S_IFREG|0755, st_size=2216304, ...}, AT_EMPTY_PATH) = 0
+pread64(3, "\6\0\0\0\4\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0@\0\0\0\0\0\0\0"..., 784, 64) = 784
+mmap(NULL, 2260560, PROT_READ, MAP_PRIVATE|MAP_DENYWRITE, 3, 0) = 0x7f4c375ec000
+mmap(0x7f4c37614000, 1658880, PROT_READ|PROT_EXEC, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x28000) = 0x7f4c37614000
+mmap(0x7f4c377a9000, 360448, PROT_READ, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x1bd000) = 0x7f4c377a9000
+mmap(0x7f4c37801000, 24576, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE, 3, 0x214000) = 0x7f4c37801000
+mmap(0x7f4c37807000, 52816, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS, -1, 0) = 0x7f4c37807000
+close(3)                                = 0
+mmap(NULL, 12288, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS, -1, 0) = 0x7f4c375e9000
+arch_prctl(ARCH_SET_FS, 0x7f4c375e9740) = 0
+set_tid_address(0x7f4c375e9a10)         = 18104
+set_robust_list(0x7f4c375e9a20, 24)     = 0
+rseq(0x7f4c375ea0e0, 0x20, 0, 0x53053053) = 0
+mprotect(0x7f4c37801000, 16384, PROT_READ) = 0
+mprotect(0x5636b6617000, 4096, PROT_READ) = 0
+mprotect(0x7f4c3785e000, 8192, PROT_READ) = 0
+prlimit64(0, RLIMIT_STACK, NULL, {rlim_cur=8192*1024, rlim_max=RLIM64_INFINITY}) = 0
+munmap(0x7f4c37814000, 63055)           = 0
+clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLDstrace: Process 18105 attached
+, child_tidptr=0x7f4c375e9a10) = 18105
+[pid 18104] newfstatat(1, "",  <unfinished ...>
+[pid 18105] set_robust_list(0x7f4c375e9a20, 24 <unfinished ...>
+[pid 18104] <... newfstatat resumed>{st_mode=S_IFCHR|0620, st_rdev=makedev(0x88, 0x3), ...}, AT_EMPTY_PATH) = 0
+[pid 18105] <... set_robust_list resumed>) = 0
+[pid 18104] getrandom("\xd8\x19\x4c\x45\xfa\x51\x2b\x33", 8, GRND_NONBLOCK) = 8
+[pid 18105] newfstatat(1, "",  <unfinished ...>
+[pid 18104] brk(NULL <unfinished ...>
+[pid 18105] <... newfstatat resumed>{st_mode=S_IFCHR|0620, st_rdev=makedev(0x88, 0x3), ...}, AT_EMPTY_PATH) = 0
+[pid 18104] <... brk resumed>)          = 0x5636b85ee000
+[pid 18105] getrandom( <unfinished ...>
+[pid 18104] brk(0x5636b860f000 <unfinished ...>
+[pid 18105] <... getrandom resumed>"\x1f\x6e\xfe\x4d\x39\x1a\x9d\x98", 8, GRND_NONBLOCK) = 8
+[pid 18104] <... brk resumed>)          = 0x5636b860f000
+[pid 18105] brk(NULL <unfinished ...>
+[pid 18104] write(1, "Hello\n", 6 <unfinished ...>
+[pid 18105] <... brk resumed>)          = 0x5636b85ee000
+[pid 18104] <... write resumed>)        = 6
+[pid 18105] brk(0x5636b860f000 <unfinished ...>
+[pid 18104] clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD <unfinished ...>
+[pid 18105] <... brk resumed>)          = 0x5636b860f000
+[pid 18105] write(1, "Hello\n", 6strace: Process 18106 attached
+ <unfinished ...>
+[pid 18104] <... clone resumed>, child_tidptr=0x7f4c375e9a10) = 18106
+[pid 18106] set_robust_list(0x7f4c375e9a20, 24 <unfinished ...>
+[pid 18105] <... write resumed>)        = 6
+[pid 18104] write(1, "Hello\n", 6 <unfinished ...>
+[pid 18106] <... set_robust_list resumed>) = 0
+[pid 18104] <... write resumed>)        = 6
+[pid 18105] clone(child_stack=NULL, flags=CLONE_CHILD_CLEARTID|CLONE_CHILD_SETTID|SIGCHLD <unfinished ...>
+[pid 18104] wait4(-1,  <unfinished ...>
+[pid 18106] write(1, "Hello\n", 6strace: Process 18107 attached
+)      = 6
+[pid 18107] set_robust_list(0x7f4c375e9a20, 24 <unfinished ...>
+[pid 18106] wait4(-1,  <unfinished ...>
+[pid 18105] <... clone resumed>, child_tidptr=0x7f4c375e9a10) = 18107
+[pid 18107] <... set_robust_list resumed>) = 0
+[pid 18106] <... wait4 resumed>NULL, 0, NULL) = -1 ECHILD (No child processes)
+[pid 18105] write(1, "Hello\n", 6 <unfinished ...>
+[pid 18107] write(1, "Hello\n", 6 <unfinished ...>
+[pid 18106] wait4(-1,  <unfinished ...>
+[pid 18107] <... write resumed>)        = 6
+[pid 18105] <... write resumed>)        = 6
+[pid 18107] wait4(-1,  <unfinished ...>
+[pid 18106] <... wait4 resumed>NULL, 0, NULL) = -1 ECHILD (No child processes)
+[pid 18107] <... wait4 resumed>NULL, 0, NULL) = -1 ECHILD (No child processes)
+[pid 18105] wait4(-1,  <unfinished ...>
+[pid 18107] wait4(-1,  <unfinished ...>
+[pid 18106] exit_group(0 <unfinished ...>
+[pid 18107] <... wait4 resumed>NULL, 0, NULL) = -1 ECHILD (No child processes)
+[pid 18106] <... exit_group resumed>)   = ?
+[pid 18107] exit_group(0 <unfinished ...>
+[pid 18106] +++ exited with 0 +++
+[pid 18104] <... wait4 resumed>NULL, 0, NULL) = 18106
+[pid 18107] <... exit_group resumed>)   = ?
+[pid 18104] --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=18106, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+[pid 18104] wait4(-1,  <unfinished ...>
+[pid 18107] +++ exited with 0 +++
+[pid 18105] <... wait4 resumed>NULL, 0, NULL) = 18107
+[pid 18105] --- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=18107, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+[pid 18105] wait4(-1, NULL, 0, NULL)    = -1 ECHILD (No child processes)
+[pid 18105] exit_group(0)               = ?
+[pid 18105] +++ exited with 0 +++
+<... wait4 resumed>NULL, 0, NULL)       = 18105
+--- SIGCHLD {si_signo=SIGCHLD, si_code=CLD_EXITED, si_pid=18105, si_uid=1000, si_status=0, si_utime=0, si_stime=0} ---
+exit_group(0)                           = ?
++++ exited with 0 +++
