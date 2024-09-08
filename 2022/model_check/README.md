@@ -36,3 +36,14 @@ python3  model-checker.py   ../p6/pc-cv.py
 
 ~~~
 
+
+
+p8: 
+~~~
+
+python3  model-checker.py   ../p8/lock-ordering.py |  python3  visualize.py  > p8/a.html
+
+~~~
+
+
+
