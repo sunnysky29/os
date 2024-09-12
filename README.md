@@ -6,6 +6,10 @@
 
 ## Abstract Machine
 
+code:
+https://github.com/NJU-ProjectN/am-kernels.git
+
+
 [介绍材料：Abstract Machine裸机运行时环境](https://ysyx.oscc.cc/slides/2205/10.html)
 
 https://github.com/NJU-ProjectN/nexus-am.git
