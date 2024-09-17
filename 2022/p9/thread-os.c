@@ -19,7 +19,7 @@ typedef union task {  //线程
     void      (*entry)(void *);
     Context    *context;
   };
-  uint8_t stack[8192];
+  uint8_t stack[4096 * 3];
 } Task;
 
 Task *currents[MAX_CPU];

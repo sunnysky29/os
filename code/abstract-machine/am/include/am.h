@@ -69,10 +69,10 @@ void     map         (AddrSpace *as, void *vaddr, void *paddr, int prot);
 Context *ucontext    (AddrSpace *as, Area kstack, void *entry);
 
 // ---------------------- MPE: Multi-Processing ----------------------
-bool     mpe_init    (void (*entry)());
-int      cpu_count   (void);
-int      cpu_current (void);
-int      atomic_xchg (int *addr, int newval);
+bool     mpe_init    (void (*entry)());   // 启动多个处理器，所有处理器都从 entry 执行
+int      cpu_count   (void);  // 系统中处理器的数量
+int      cpu_current (void);   // 当前处理器的编号
+int      atomic_xchg (int *addr, int newval);   // 唯一的原子指令
 
 #ifdef __cplusplus
 }

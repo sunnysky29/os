@@ -8,6 +8,11 @@
 # include $(AM_HOME)/Makefile
 
 
-NAME = hello
-SRCS = hello-am.c
+# NAME = hello
+# SRCS = hello-am.c
+# include $(AM_HOME)/Makefile
+
+
+NAME = kernel
+SRCS = test1.c
 include $(AM_HOME)/Makefile
