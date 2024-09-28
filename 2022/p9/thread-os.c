@@ -62,14 +62,14 @@ Context *on_interrupt(Event ev, Context *ctx) {
 }
 
 void mp_entry() {
-  iset(true);
-  yield();
+  iset(true);  // 每个cpu 打开中断
+  yield();   // 执行中断指令，陷入内核， func 开始执行
 }
 
 int main() {
-  cte_init(on_interrupt);
+  cte_init(on_interrupt);  //初始化中断处理程序
 
-  for (int i = 0; i < LENGTH(tasks); i++) {
+  for (int i = 0; i < LENGTH(tasks); i++) {  // 创建若干线程
     Task *task    = &tasks[i];
     Area stack    = (Area) { &task->context + 1, task + 1 };
     task->context = kcontext(stack, task->entry, (void *)task->name);
