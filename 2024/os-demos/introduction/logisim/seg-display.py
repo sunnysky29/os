@@ -23,7 +23,6 @@ for line in fileinput.input():
     # Execute the input line (like "A=0; B=1; ...") as Python code; the
     # variables A, B, ... will be stored in ctx.
     exec(line, (ctx := {}))
-
     # Initialize the display with a clear screen and the template.
     disp = CLEAR + TEMPLATE
 
