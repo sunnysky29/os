@@ -7,6 +7,18 @@ reg b1 = {.in = &X1, .out = &X};
 reg b0 = {.in = &Y1, .out = &Y};
 
 int main() {
+    // 注意，初始值全为0-
+// ------初始值：
+// X1 = 0; Y1 = 0; X = 0; Y = 0;
+// -------
+    // #define PRINT(X) printf(#X " = %d; ", X)
+    // printf("\n-------初始值：\n");
+    // PRINT(X1);
+    // PRINT(Y1);
+    // PRINT(X);
+    // PRINT(Y);
+    // printf("\n-------\n");
+
     CLOCK_CYCLE {
         // 1. Propagate wire values through combinatorial logic
         X1 = AND(NOT(X), Y);

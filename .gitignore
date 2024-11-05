@@ -157,3 +157,5 @@ mkfs
 fs.img
 
 test/
+logisim
+
