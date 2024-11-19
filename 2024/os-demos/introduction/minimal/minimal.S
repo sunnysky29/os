@@ -6,6 +6,7 @@
 //     Return value: RAX
 // See also: syscall(2) syscalls(2)
 
+// 参考  man 2 syscall,    x86-64        rdi   rsi   rdx   r10   r8    r9    -
 #define syscall3(id, a1, a2, a3) \
     movq $SYS_##id, %rax; \
     movq $a1, %rdi; \
