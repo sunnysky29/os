@@ -1,5 +1,17 @@
 #!/usr/bin/env python3
 
+"""30 行代码讲完《操作系统》
+进程
+系统调用
+上下文切换
+调度
+
+系统调用
+    read(): 返回随机的 0 或 1
+    write(s): 向 buffer 输出字符串 s
+    spawn(f): 创建一个可运行的状态机 f
+"""
+
 import sys
 import random
 from pathlib import Path
@@ -20,7 +32,7 @@ class OS:
     '''
     SYSCALLS = ['read', 'write', 'spawn']
 
-    class Process:
+    class Process:  ## os 的管理对象，就是状态机，当我能访问它时候，假设已经暂停了
         '''
         A "freezed" state machine. The state (local variables,
         program counters, etc.) are stored in the generator
@@ -49,7 +61,9 @@ class OS:
         # in the current Python runtime--and main is thus
         # available for calling.
         exec(src, globals())
-        self.procs = [OS.Process(main)]
+        self.procs = [OS.Process(main)]  # os 的初始进程
+        print(f'__init__, self.procs: {self.procs} !!!!!')
+        
         self.buffer = ''
 
     def run(self):
@@ -58,28 +72,36 @@ class OS:
         # there is no running process at the moment. Our model
         # terminates if there is nothing to run.
         while self.procs:
-
+            print(f'before self.procs: {self.procs} ')
+            
             # There is also a pointer to the "current" process
             # in today's operating systems.
             current = random.choice(self.procs)
-
+            print(f'current:     {current}  <-----------') 
             try:
                 # Operating systems handle interrupt and system
                 # calls, and "assign" CPU to a process.
-                match current.step():
+                match current.step():  #  会一直运行，直到遇到 syscall
                     case 'read', _:
+                        print(f'///read')
                         current.retval = random.choice([0, 1])
                     case 'write', s:
+                        print(f'///write')
                         self.buffer += s
                     case 'spawn', (fn, *args):
+                        print(f'///spawn')
                         self.procs += [OS.Process(fn, *args)]
                     case _:
+                        print(f'-----&&&&&')
                         assert 0
 
             except StopIteration:
+                print(f'proc {current} done , DEL..........')
                 # The generator object terminates.
                 self.procs.remove(current)
-
+            print(f'after self.procs: {self.procs} ')
+            print(f'self.buffer: {self.buffer}')   
+            print(f'----'*20)
         return self.buffer
 
 if __name__ == '__main__':
@@ -96,3 +118,71 @@ if __name__ == '__main__':
 
     stdout = OS(src).run()
     print(stdout)
+
+
+
+"""
+ ./os-model.py   proc.py
+__init__, self.procs: [<__main__.OS.Process object at 0x7f61726dfeb0>] !!!!!
+before self.procs: [<__main__.OS.Process object at 0x7f61726dfeb0>]
+current:     <__main__.OS.Process object at 0x7f61726dfeb0>  <-----------
+///spawn
+after self.procs: [<__main__.OS.Process object at 0x7f61726dfeb0>, <__main__.OS.Process object at 0x7f61726de8c0>]
+self.buffer:
+--------------------------------------------------------------------------------
+before self.procs: [<__main__.OS.Process object at 0x7f61726dfeb0>, <__main__.OS.Process object at 0x7f61726de8c0>]
+current:     <__main__.OS.Process object at 0x7f61726dfeb0>  <-----------
+///spawn
+after self.procs: [<__main__.OS.Process object at 0x7f61726dfeb0>, <__main__.OS.Process object at 0x7f61726de8c0>, <__main__.OS.Process object at 0x7f61726de9b0>]
+self.buffer:
+--------------------------------------------------------------------------------
+before self.procs: [<__main__.OS.Process object at 0x7f61726dfeb0>, <__main__.OS.Process object at 0x7f61726de8c0>, <__main__.OS.Process object at 0x7f61726de9b0>]
+current:     <__main__.OS.Process object at 0x7f61726dfeb0>  <-----------
+proc <__main__.OS.Process object at 0x7f61726dfeb0> done , DEL..........
+after self.procs: [<__main__.OS.Process object at 0x7f61726de8c0>, <__main__.OS.Process object at 0x7f61726de9b0>]
+self.buffer:
+--------------------------------------------------------------------------------
+before self.procs: [<__main__.OS.Process object at 0x7f61726de8c0>, <__main__.OS.Process object at 0x7f61726de9b0>]
+current:     <__main__.OS.Process object at 0x7f61726de8c0>  <-----------
+1111
+///write
+after self.procs: [<__main__.OS.Process object at 0x7f61726de8c0>, <__main__.OS.Process object at 0x7f61726de9b0>]
+self.buffer: A
+--------------------------------------------------------------------------------
+before self.procs: [<__main__.OS.Process object at 0x7f61726de8c0>, <__main__.OS.Process object at 0x7f61726de9b0>]
+current:     <__main__.OS.Process object at 0x7f61726de9b0>  <-----------
+1111
+///write
+after self.procs: [<__main__.OS.Process object at 0x7f61726de8c0>, <__main__.OS.Process object at 0x7f61726de9b0>]
+self.buffer: AB
+--------------------------------------------------------------------------------
+before self.procs: [<__main__.OS.Process object at 0x7f61726de8c0>, <__main__.OS.Process object at 0x7f61726de9b0>]
+current:     <__main__.OS.Process object at 0x7f61726de9b0>  <-----------
+2222
+3333
+///write
+after self.procs: [<__main__.OS.Process object at 0x7f61726de8c0>, <__main__.OS.Process object at 0x7f61726de9b0>]
+self.buffer: ABB
+--------------------------------------------------------------------------------
+before self.procs: [<__main__.OS.Process object at 0x7f61726de8c0>, <__main__.OS.Process object at 0x7f61726de9b0>]
+current:     <__main__.OS.Process object at 0x7f61726de8c0>  <-----------
+2222
+3333
+///write
+after self.procs: [<__main__.OS.Process object at 0x7f61726de8c0>, <__main__.OS.Process object at 0x7f61726de9b0>]
+self.buffer: ABBA
+--------------------------------------------------------------------------------
+before self.procs: [<__main__.OS.Process object at 0x7f61726de8c0>, <__main__.OS.Process object at 0x7f61726de9b0>]
+current:     <__main__.OS.Process object at 0x7f61726de9b0>  <-----------
+proc <__main__.OS.Process object at 0x7f61726de9b0> done , DEL..........
+after self.procs: [<__main__.OS.Process object at 0x7f61726de8c0>]
+self.buffer: ABBA
+--------------------------------------------------------------------------------
+before self.procs: [<__main__.OS.Process object at 0x7f61726de8c0>]
+current:     <__main__.OS.Process object at 0x7f61726de8c0>  <-----------
+proc <__main__.OS.Process object at 0x7f61726de8c0> done , DEL..........
+after self.procs: []
+self.buffer: ABBA
+--------------------------------------------------------------------------------
+ABBA
+"""
