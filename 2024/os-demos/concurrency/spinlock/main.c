@@ -5,8 +5,8 @@
 
 struct cpu cpus[16];
 
-#define INTR    assert(ienabled())
-#define NO_INTR assert(!ienabled())
+#define INTR    assert(ienabled())  // 断言中断处于打开状态
+#define NO_INTR assert(!ienabled())  // 断言不能有打开状态
 
 spinlock_t bkl = spin_init("Big Kernel Lock");
 spinlock_t A = spin_init("Lock A");

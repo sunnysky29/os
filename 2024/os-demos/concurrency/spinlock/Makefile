@@ -1,7 +1,8 @@
 NAME := kernel
 SRCS := main.c spinlock.c
 export smp  := 4
-export ARCH := x86_64-qemu
+# export ARCH := x86_64-qemu
+export ARCH := native
 
 -include $(AM_HOME)/Makefile
 
