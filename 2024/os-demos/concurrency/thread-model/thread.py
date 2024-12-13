@@ -1,3 +1,8 @@
+"""
+mosaic  thread.py  |   collect
+
+"""
+
 def T_print(name):
     for _ in range(3):
         heap.n += 1

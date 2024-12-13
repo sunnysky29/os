@@ -14,7 +14,9 @@ void T_sum() {
         // );
 
         asm volatile(
-            "lock addq $1, %0" : "+m"(sum)
+            "addq $1, %0" : "+m"(sum)  // x
+            // "lock addq $1, %0" : "+m"(sum)  // √。  time ./sum
+
         );
     }
 }

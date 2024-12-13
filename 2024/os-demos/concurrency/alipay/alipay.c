@@ -7,7 +7,7 @@ void Alipay_withdraw(int amt) {
         // Bugs may only manifest on specific timings. Sometimes
         // we reproduce bugs by inserting sleep()s.
 
-        // usleep(1);
+        usleep(1);
 
         balance -= amt;
     }

@@ -46,9 +46,28 @@ void unlock() {
 
 long volatile sum = 0;
 
+// void T_sum(int tid) {
+//     for (int i = 0; i < N; i++) {
+//         lock();   //  lock &  unlock 效果就是 stop the world
+
+//         // This critical section is even longer; but
+//         // it should be safe--the world is stopped.
+//         // We also marked sum as volatile to make
+//         // sure it is loaded and stored in each
+//         // loop iteration.
+//         for (int _ = 0; _ < 10; _++) {
+//             sum++;
+//         }
+
+//         unlock();
+//     }
+
+
+// 错误例子，tid=1 不遵守lock unlock 配对
 void T_sum(int tid) {
     for (int i = 0; i < N; i++) {
-        lock();
+        if (tid != 1)
+        lock();   //  lock &  unlock 效果就是 stop the world
 
         // This critical section is even longer; but
         // it should be safe--the world is stopped.
@@ -59,9 +78,9 @@ void T_sum(int tid) {
             sum++;
         }
 
+        if (tid != 1)
         unlock();
     }
-
     printf("Thread %d: sum = %ld\n", tid, sum);
 }
 

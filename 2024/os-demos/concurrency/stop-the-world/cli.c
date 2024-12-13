@@ -1,4 +1,4 @@
-int main() {
+ int main() {
     // Clear FL_IF in the CPU.
     // Interrupt disabled.
     asm volatile("cli");

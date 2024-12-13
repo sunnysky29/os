@@ -1,3 +1,8 @@
+"""
+mosaic  -c sum.py   | collect
+
+"""
+
 def T_sum():
     for _ in range(3):
         t = heap.sum

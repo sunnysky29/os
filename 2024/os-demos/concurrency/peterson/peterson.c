@@ -9,7 +9,11 @@
 // inserted sufficient barriers. Understanding the correctness
 // of this code is far beyond the scope of this course.
 // 
-#define BARRIER __sync_synchronize()
+
+// 正确和错误的写法
+#define BARRIER __sync_synchronize()  //  √,内存屏障
+// #define BARRIER  // putchar('.'); 可以连用
+
 //
 // Peterson's algorithm is wrong without proper barriers:
 //
@@ -30,6 +34,8 @@ void critical_section() {
 
     // On some machines, printing a character will hide
     // the bug!
+    //   ./peterson  | wc  -c  ， 该行在不同cpu上，会影响结果，配合#define BARRIER ，可能很久才出错
+    //  在一个处理器上测试通过，不代表在其他处理器也能通过 （x86 , arm 可能不同）
     // putchar('.');
 
     assert(
