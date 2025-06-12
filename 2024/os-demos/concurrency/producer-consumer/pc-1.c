@@ -14,6 +14,11 @@ retry:
         if (!ready) goto retry;
 
         // assert(depth < n);
+        assert(ready);
+        mutex_lock(&lk);
+        assert(depth<n);
+        mutex_unlock(&lk);
+
 
         mutex_lock(&lk);
         printf("(");
