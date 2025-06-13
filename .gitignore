@@ -157,7 +157,6 @@ mkfs
 fs.img
 
 test/
-logisim
 
 minimal_.s
 minimal
