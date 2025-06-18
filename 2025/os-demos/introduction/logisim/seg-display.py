@@ -20,15 +20,13 @@ WHITE = '\033[37m░\033[0m'  # A white block
 BLACK = '\033[31m█\033[0m'  # A black block
 
 for line in fileinput.input():
-    # Display the input line
-    print(f"\nInput: {line.strip()}")
-    
     # Execute the input line (like "A=0; B=1; ...") as Python code; the
     # variables A, B, ... will be stored in ctx.
     exec(line, (ctx := {}))
 
     # Initialize the display with a clear screen and the template.
-    disp = CLEAR + TEMPLATE
+    # disp = CLEAR + TEMPLATE
+    disp = CLEAR + f"Input: {line.strip()}\n" + TEMPLATE  # 将输入和模板合并
 
     for ch in 'ABCDEFG':
         # Determine the block color.
