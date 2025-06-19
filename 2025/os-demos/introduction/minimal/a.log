@@ -1,0 +1,17 @@
+execve("/bin/gcc", ["gcc", "hello.c"], 0x7ffeccc16550 /* 33 vars */) = 0
+vfork(strace: Process 249262 attached
+[pid 249262] execve("/usr/lib/gcc/x86_64-linux-gnu/11/cc1", ["/usr/lib/gcc/x86_64-linux-gnu/11"..., "-quiet", "-imultiarch", "x86_64-linux-gnu", "hello.c", "-quiet", "-dumpdir", "a-", "-dumpbase", "hello.c", "-dumpbase-ext", ".c", "-mtune=generic", "-march=x86-64", "-fasynchronous-unwind-tables", "-fstack-protector-strong", "-Wformat", "-Wformat-security", "-fstack-clash-protection", "-fcf-protection", "-o", "/tmp/ccw0k4Bh.s"], 0x3438a4a0 /* 38 vars */ <unfinished ...>
+[pid 249261] <... vfork resumed>)       = 249262
+[pid 249262] <... execve resumed>)      = 0
+vfork(strace: Process 249263 attached
+[pid 249263] execve("/bin/as", ["as", "--64", "-o", "/tmp/cchvEP5O.o", "/tmp/ccw0k4Bh.s"], 0x3438a4a0 /* 38 vars */ <unfinished ...>
+[pid 249261] <... vfork resumed>)       = 249263
+[pid 249263] <... execve resumed>)      = 0
+vfork(strace: Process 249264 attached
+[pid 249264] execve("/usr/lib/gcc/x86_64-linux-gnu/11/collect2", ["/usr/lib/gcc/x86_64-linux-gnu/11"..., "-plugin", "/usr/lib/gcc/x86_64-linux-gnu/11"..., "-plugin-opt=/usr/lib/gcc/x86_64-"..., "-plugin-opt=-fresolution=/tmp/cc"..., "-plugin-opt=-pass-through=-lgcc", "-plugin-opt=-pass-through=-lgcc_"..., "-plugin-opt=-pass-through=-lc", "-plugin-opt=-pass-through=-lgcc", "-plugin-opt=-pass-through=-lgcc_"..., "--build-id", "--eh-frame-hdr", "-m", "elf_x86_64", "--hash-style=gnu", "--as-needed", "-dynamic-linker", "/lib64/ld-linux-x86-64.so.2", "-pie", "-z", "now", "-z", "relro", "/usr/lib/gcc/x86_64-linux-gnu/11"..., "/usr/lib/gcc/x86_64-linux-gnu/11"..., "/usr/lib/gcc/x86_64-linux-gnu/11"..., "-L/usr/lib/gcc/x86_64-linux-gnu/"..., "-L/usr/lib/gcc/x86_64-linux-gnu/"..., "-L/usr/lib/gcc/x86_64-linux-gnu/"..., "-L/lib/x86_64-linux-gnu", "-L/lib/../lib", "-L/usr/lib/x86_64-linux-gnu", ...], 0x3438b500 /* 40 vars */ <unfinished ...>
+[pid 249261] <... vfork resumed>)       = 249264
+[pid 249264] <... execve resumed>)      = 0
+[pid 249264] vfork(strace: Process 249265 attached
+[pid 249265] execve("/bin/ld", ["/bin/ld", "-plugin", "/usr/lib/gcc/x86_64-linux-gnu/11"..., "-plugin-opt=/usr/lib/gcc/x86_64-"..., "-plugin-opt=-fresolution=/tmp/cc"..., "-plugin-opt=-pass-through=-lgcc", "-plugin-opt=-pass-through=-lgcc_"..., "-plugin-opt=-pass-through=-lc", "-plugin-opt=-pass-through=-lgcc", "-plugin-opt=-pass-through=-lgcc_"..., "--build-id", "--eh-frame-hdr", "-m", "elf_x86_64", "--hash-style=gnu", "--as-needed", "-dynamic-linker", "/lib64/ld-linux-x86-64.so.2", "-pie", "-z", "now", "-z", "relro", "/usr/lib/gcc/x86_64-linux-gnu/11"..., "/usr/lib/gcc/x86_64-linux-gnu/11"..., "/usr/lib/gcc/x86_64-linux-gnu/11"..., "-L/usr/lib/gcc/x86_64-linux-gnu/"..., "-L/usr/lib/gcc/x86_64-linux-gnu/"..., "-L/usr/lib/gcc/x86_64-linux-gnu/"..., "-L/lib/x86_64-linux-gnu", "-L/lib/../lib", "-L/usr/lib/x86_64-linux-gnu", ...], 0x7fff69091b60 /* 40 vars */ <unfinished ...>
+[pid 249264] <... vfork resumed>)       = 249265
+[pid 249265] <... execve resumed>)      = 0
